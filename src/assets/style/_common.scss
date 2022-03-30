@@ -1,0 +1,54 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #F5F5F5;
+}
+
+button {
+  width: inherit;
+  height: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 100%;
+  vertical-align: baseline;
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+p {
+  width: inherit;
+  height: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+span {
+  width: inherit;
+  height: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+button:hover {
+  cursor: pointer;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+#app {
+  height: 100%;
+}

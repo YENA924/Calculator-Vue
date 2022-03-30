@@ -1,25 +1,23 @@
 <template>
-  <Calculator msg="Welcome to Your Vue.js App"/>
+  <div class="calculator">
+    <calculator-display />
+    <calculator-keypad />
+  </div>
 </template>
 
 <script>
-import Calculator from './components/Calculator.vue'
+import CalculatorDisplay from '@/components/CalculatorDisplay.vue'
+import CalculatorKeypad from '@/components/CalculatorKeypad.vue'
 
 export default {
   name: 'App',
   components: {
-    Calculator
+    CalculatorDisplay,
+    CalculatorKeypad
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss">
+  @import "@/assets/style/main.scss";
 </style>
