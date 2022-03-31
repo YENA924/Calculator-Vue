@@ -6,8 +6,8 @@
       </button>
     </div>
     <div class="calc__input_container">
-      <p class="result--prev">{{ inputPrevValue }}</p>
-      <p class="result" @keypress="onKeyPressEvent">{{ inputDisplayValue }}</p>
+      <p class="result--prev">{{ displayValue.prev }}</p>
+      <p class="result" @keypress="onKeyPressEvent">{{ displayValue.next }}</p>
     </div>
     
     <teleport to="body">
@@ -62,13 +62,18 @@
 </template>
 
 <script>
-import { ref } from '@vue/reactivity'
+import { reactive, ref } from '@vue/reactivity'
 
 export default {
   name: 'CalculatorKeypad',
   setup () {
-    const inputDisplayValue = ref(0)
-    const inputPrevValue = ref('')
+    let displayValue = reactive({
+      prev: '',
+      next: '0',
+      arithmetic: false
+    })
+    const displayPrevValue = ref('')
+    const inputPrevValue = ref('0')
     const historyModalOpen = ref(true)
 
     const onKeyPressEvent = ($event) => {
@@ -80,28 +85,66 @@ export default {
       
       if (innerText === undefined || innerText === null || innerText === '') return false
       
-      console.log('event:::::', event, innerText)
+      const numberReg = /^[0-9]$/
+      const operatorReg = /^([+\-.×÷])|(C|\bCE\b|\bbackspace\b|\b\+\/-\b)$/
+      
       switch (true) {
-        case /^[0-9]*$/.test(innerText):
-          console.log('숫자');
+        case numberReg.test(innerText):
+        case operatorReg.test(innerText):
+          displayInputValue(innerText)
           break;
-        case /^[+\-×C]*$/.test(innerText):
-          console.log('숫자');
-          break;
-        case /^[=]*$/.test(innerText):
-          console.log('계산');
+        case /^[=]$/.test(innerText):
+          displayResult()
           break;
         default:
           console.error('알 수 없는 입력값 입니다.');
       }
     }
 
+    const displayInputValue = (value) => {
+      const isZeroDisplayValue = displayValue.next === '0'
+      const isArithmetic = /^([+\-×÷])$/.test(value)
+      
+      console.log(value)
+      
+      if (isNaN(value)) {
+        if (value === 'backspace') displayValue.next.length === 1 ? displayValue.next = '0' : displayValue.next = displayValue.next.slice(0, -1)
+        
+        if (value === 'C' || value === 'CE') {
+          displayValue.next = '0'
+          displayValue.prev = ''
+        }
+        
+        if (value === '.' && !displayValue.next.includes(value)) {
+          displayValue.next = `${displayValue.next}${value}`
+        }
+        
+        if (isArithmetic) {
+          displayValue.prev = `${displayValue.next} ${value}`
+          
+          if (displayValue.arithmetic) {
+            displayResult()
+            displayValue.arithmetic = false
+          } else displayValue.arithmetic = true 
+        }
+      } else {
+        isZeroDisplayValue ? displayValue.next = value : displayValue.next += value
+      }
+    }
+
+    const displayResult = () => {
+      console.log('계산!!!')
+    }
+
     return {
-      inputDisplayValue,
+      displayValue,
+      displayPrevValue,
       inputPrevValue,
       historyModalOpen,
       onKeyPressEvent,
-      onClickKeyPad
+      onClickKeyPad,
+      displayInputValue,
+      displayResult
     }
   }
 }
