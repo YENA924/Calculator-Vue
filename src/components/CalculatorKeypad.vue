@@ -6,7 +6,7 @@
       </button>
     </div>
     <div class="calc__input_container">
-      <p class="result--prev">{{ displayValue.prev }}</p>
+      <p class="result--prev">{{ displayValue.statement }}</p>
       <p class="result" @keypress="onKeyPressEvent">{{ displayValue.next }}</p>
     </div>
     
@@ -68,9 +68,12 @@ export default {
   name: 'CalculatorKeypad',
   setup () {
     let displayValue = reactive({
-      prev: '',
-      next: '0',
-      arithmetic: false
+      statement: '',
+      prev: 0,
+      next: 0,
+      arithmetic: '',
+      nextReset: false,
+      isAllReset: false
     })
     const displayPrevValue = ref('')
     const inputPrevValue = ref('0')
@@ -97,22 +100,28 @@ export default {
           displayResult()
           break;
         default:
-          console.error('알 수 없는 입력값 입니다.');
+          console.error('알 수 없는 입력값 입니다.')
       }
     }
 
     const displayInputValue = (value) => {
-      const isZeroDisplayValue = displayValue.next === '0'
       const isArithmetic = /^([+\-×÷])$/.test(value)
-      
       console.log(value)
       
+      if (displayValue.isAllReset) {
+        displayValue.statement = ''
+        displayValue.next = 0
+        displayValue.isAllReset = false
+      }
+      
       if (isNaN(value)) {
-        if (value === 'backspace') displayValue.next.length === 1 ? displayValue.next = '0' : displayValue.next = displayValue.next.slice(0, -1)
+        if (value === 'backspace') displayValue.next.length === 1 ? displayValue.next = 0 : displayValue.next = displayValue.next.slice(0, -1)
         
         if (value === 'C' || value === 'CE') {
-          displayValue.next = '0'
-          displayValue.prev = ''
+          displayValue.next = 0
+          displayValue.prev = 0
+          displayValue.arithmetic = ''
+          displayValue.statement = ''
         }
         
         if (value === '.' && !displayValue.next.includes(value)) {
@@ -120,20 +129,58 @@ export default {
         }
         
         if (isArithmetic) {
-          displayValue.prev = `${displayValue.next} ${value}`
+          displayValue.arithmetic = value
           
-          if (displayValue.arithmetic) {
-            displayResult()
-            displayValue.arithmetic = false
-          } else displayValue.arithmetic = true 
+          if (displayValue.statement !== '') {
+            calculate()
+          } else {
+            displayValue.prev = displayValue.next
+            displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
+            displayValue.nextReset = true
+          }
         }
       } else {
-        isZeroDisplayValue ? displayValue.next = value : displayValue.next += value
+        if (displayValue.nextReset) {
+          displayValue.next = 0
+          displayValue.nextReset = false
+        }
+        
+        displayValue.next === 0 ? displayValue.next = value : displayValue.next += value
       }
     }
 
-    const displayResult = () => {
-      console.log('계산!!!')
+    const calculate = () => {
+      if (displayValue.arithmetic === '') return false
+      
+      let result = 0
+      
+      switch (displayValue.arithmetic) {
+        case '+':
+          result = Number(displayValue.prev) + Number(displayValue.next)
+          break
+        case '-':
+          result = Number(displayValue.prev) - Number(displayValue.next)
+          break
+        case '×':
+          result = Number(displayValue.prev) * Number(displayValue.next)
+          break
+        case '÷':
+          result = Number(displayValue.prev) / Number(displayValue.next)
+          break
+        default:
+          console.error('알 수 없는 계산값 입니다')
+          return false
+      }
+
+      displayResult(result)
+    }
+
+    const displayResult = (result) => {
+      displayValue.next = result
+      displayValue.statement = `${displayValue.prev} ${displayValue.arithmetic} ${displayValue.next} =`
+      displayValue.arithmetic = ''
+      displayValue.prev = 0
+      displayValue.isAllReset = true
     }
 
     return {
@@ -144,6 +191,7 @@ export default {
       onKeyPressEvent,
       onClickKeyPad,
       displayInputValue,
+      calculate,
       displayResult
     }
   }
