@@ -123,7 +123,7 @@ export default {
     }
     
     const displayOperatorValue = (value) => {
-      const isArithmetic = /^([+\-×÷])$/.test(value)
+      const isArithmetic = /^([+\-×÷])|(\b\+\/-\b)$/.test(value)
       
       if (value === 'backspace') {
         displayValue.next.length === 1 
@@ -134,6 +134,11 @@ export default {
       }
       
       if (value === 'C' || value === 'CE') {
+        if (value === 'CE' && displayValue.arithmetic !== '') {
+          displayValue.next = 0
+          return false
+        }
+        
         displayValue.next = 0
         displayValue.prev = 0
         displayValue.arithmetic = ''
@@ -152,6 +157,10 @@ export default {
       
       if (isArithmetic) {
         displayValue.arithmetic = value
+        if (value === '+/-') {
+          displayValue.next = -Number(displayValue.next)
+          return false
+        }
         
         if (displayValue.isPressResult) {
           displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
