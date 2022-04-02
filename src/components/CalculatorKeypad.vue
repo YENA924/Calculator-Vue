@@ -73,8 +73,8 @@ export default {
       next: 0,
       result: computed(() => displayValue.next.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')),
       arithmetic: '',
-      nextReset: false,
-      isResult: false
+      isNextReset: false,
+      isPressResult: false
     })
     const historyModalOpen = ref(true)
 
@@ -108,15 +108,15 @@ export default {
     const displayNumberValue = (value) => {
       if (displayValue.next.length === 16) return false
       
-      if (displayValue.isResult) {
+      if (displayValue.isPressResult) {
         displayValue.statement = ''
         displayValue.next = 0
-        displayValue.isResult = false
+        displayValue.isPressResult = false
       }
     
-      if (displayValue.nextReset) {
+      if (displayValue.isNextReset) {
         displayValue.next = 0
-        displayValue.nextReset = false
+        displayValue.isNextReset = false
       }
       
       displayValue.next === 0 ? displayValue.next = Number(value) : displayValue.next += value
@@ -128,8 +128,9 @@ export default {
       if (value === 'backspace') {
         displayValue.next.length === 1 
         ? displayValue.next = 0
-        : displayValue.isResult ? displayValue.statement = ''
-        : displayValue.next = displayValue.next.slice(0, -1)
+        : displayValue.isPressResult 
+          ? displayValue.statement = ''
+          : displayValue.next = displayValue.next.slice(0, -1)
       }
       
       if (value === 'C' || value === 'CE') {
@@ -140,10 +141,10 @@ export default {
       }
       
       if (value === '.') {
-        if (displayValue.isResult) {
+        if (displayValue.isPressResult) {
           displayValue.statement = ''
           displayValue.next = 0
-          displayValue.isResult = false
+          displayValue.isPressResult = false
         }
         
         displayValue.next = displayValue.result.includes('.')? displayValue.next : `${displayValue.next}${value}`
@@ -152,25 +153,21 @@ export default {
       if (isArithmetic) {
         displayValue.arithmetic = value
         
-        if (displayValue.isResult) {
+        if (displayValue.isPressResult) {
           displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
           displayValue.prev = displayValue.next
           displayValue.next = 0
-          displayValue.isResult = false
+          displayValue.isPressResult = false
         } else {
-          if (displayValue.statement !== '') {
-            calculate()
-          } else {
-            displayValue.prev = displayValue.next
-            displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
-            displayValue.nextReset = true
-          }
+          displayValue.prev = displayValue.next
+          displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
+          displayValue.isNextReset = true
         }
       }
     }
 
     const calculate = () => {
-      if (displayValue.arithmetic === '' || displayValue.prev === '' || displayValue.prev === null) return false
+      if (displayValue.arithmetic === '' || displayValue.prev === '' || displayValue.next === '') return false
       
       let result = 0
       
@@ -200,14 +197,14 @@ export default {
       
       displayValue.statement =
       typeof result !== 'number'
-      ? '숫자가 아닌 결과값 입니다'
-      : isInfinity
-      ? '0으로 나눌 수 없습니다'
-      : `${displayValue.prev} ${displayValue.arithmetic} ${displayValue.next} =`
+        ? '숫자가 아닌 결과값 입니다'
+        : isInfinity
+          ? '0으로 나눌 수 없습니다'
+          : `${displayValue.prev} ${displayValue.arithmetic} ${displayValue.next} =`
       displayValue.next = isInfinity ? 0 : result
       displayValue.arithmetic = ''
       displayValue.prev = 0
-      displayValue.isResult = true
+      displayValue.isPressResult = true
     }
 
     return {
