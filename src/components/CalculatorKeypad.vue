@@ -126,7 +126,7 @@ export default {
       const isArithmetic = /^([+\-×÷])|(\b\+\/-\b)$/.test(value)
       
       if (value === 'backspace') {
-        displayValue.next.length === 1 
+        displayValue.next.length === 1 || displayValue.next.length === undefined || displayValue.next.length === null
         ? displayValue.next = 0
         : displayValue.isPressResult 
           ? displayValue.statement = ''
