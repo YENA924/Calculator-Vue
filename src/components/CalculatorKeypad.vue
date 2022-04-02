@@ -7,7 +7,7 @@
     </div>
     <div class="calc__input_container">
       <p class="result--prev">{{ displayValue.statement }}</p>
-      <p class="result" @keypress="onKeyPressEvent">{{ displayValue.next }}</p>
+      <p class="result" @keypress="onKeyPressEvent">{{ displayValue.result }}</p>
     </div>
     
     <teleport to="body">
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { reactive, ref } from '@vue/reactivity'
+import { reactive, ref, computed } from 'vue'
 
 export default {
   name: 'CalculatorKeypad',
@@ -71,12 +71,11 @@ export default {
       statement: '',
       prev: 0,
       next: 0,
+      result: computed(() => displayValue.next.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")),
       arithmetic: '',
       nextReset: false,
-      isAllReset: false
+      isResult: false
     })
-    const displayPrevValue = ref('')
-    const inputPrevValue = ref('0')
     const historyModalOpen = ref(true)
 
     const onKeyPressEvent = ($event) => {
@@ -93,44 +92,72 @@ export default {
       
       switch (true) {
         case numberReg.test(innerText):
+          displayNumberValue(innerText)
+          break
         case operatorReg.test(innerText):
-          displayInputValue(innerText)
-          break;
+          displayOperatorValue(innerText)
+          break
         case /^[=]$/.test(innerText):
-          displayResult()
-          break;
+          calculate()
+          break
         default:
           console.error('알 수 없는 입력값 입니다.')
       }
     }
 
-    const displayInputValue = (value) => {
-      const isArithmetic = /^([+\-×÷])$/.test(value)
-      console.log(value)
+    const displayNumberValue = (value) => {
+      if (displayValue.next.length === 16) return false
       
-      if (displayValue.isAllReset) {
+      if (displayValue.isResult) {
         displayValue.statement = ''
         displayValue.next = 0
-        displayValue.isAllReset = false
+        displayValue.isResult = false
+      }
+    
+      if (displayValue.nextReset) {
+        displayValue.next = 0
+        displayValue.nextReset = false
       }
       
-      if (isNaN(value)) {
-        if (value === 'backspace') displayValue.next.length === 1 ? displayValue.next = 0 : displayValue.next = displayValue.next.slice(0, -1)
-        
-        if (value === 'C' || value === 'CE') {
-          displayValue.next = 0
-          displayValue.prev = 0
-          displayValue.arithmetic = ''
+      displayValue.next === 0 ? displayValue.next = Number(value) : displayValue.next += value
+    }
+    
+    const displayOperatorValue = (value) => {
+      const isArithmetic = /^([+\-×÷])$/.test(value)
+      
+      if (value === 'backspace') {
+        displayValue.next.length === 1 
+        ? displayValue.next = 0
+        : displayValue.isResult ? displayValue.statement = ''
+        : displayValue.next = displayValue.next.slice(0, -1)
+      }
+      
+      if (value === 'C' || value === 'CE') {
+        displayValue.next = 0
+        displayValue.prev = 0
+        displayValue.arithmetic = ''
+        displayValue.statement = ''
+      }
+      
+      if (value === '.') {
+        if (displayValue.isResult) {
           displayValue.statement = ''
+          displayValue.next = 0
+          displayValue.isResult = false
         }
         
-        if (value === '.' && !displayValue.next.includes(value)) {
-          displayValue.next = `${displayValue.next}${value}`
-        }
+        displayValue.next = displayValue.result.includes('.')? displayValue.next : `${displayValue.next}${value}`
+      }
+      
+      if (isArithmetic) {
+        displayValue.arithmetic = value
         
-        if (isArithmetic) {
-          displayValue.arithmetic = value
-          
+        if (displayValue.isResult) {
+          displayValue.statement = `${displayValue.next} ${displayValue.arithmetic}`
+          displayValue.prev = displayValue.next
+          displayValue.next = 0
+          displayValue.isResult = false
+        } else {
           if (displayValue.statement !== '') {
             calculate()
           } else {
@@ -139,18 +166,11 @@ export default {
             displayValue.nextReset = true
           }
         }
-      } else {
-        if (displayValue.nextReset) {
-          displayValue.next = 0
-          displayValue.nextReset = false
-        }
-        
-        displayValue.next === 0 ? displayValue.next = value : displayValue.next += value
       }
     }
 
     const calculate = () => {
-      if (displayValue.arithmetic === '') return false
+      if (displayValue.arithmetic === '' || displayValue.prev === '' || displayValue.prev === null) return false
       
       let result = 0
       
@@ -168,7 +188,7 @@ export default {
           result = Number(displayValue.prev) / Number(displayValue.next)
           break
         default:
-          console.error('알 수 없는 계산값 입니다')
+          console.error('알 수 없는 연산자 입니다')
           return false
       }
 
@@ -176,21 +196,27 @@ export default {
     }
 
     const displayResult = (result) => {
-      displayValue.next = result
-      displayValue.statement = `${displayValue.prev} ${displayValue.arithmetic} ${displayValue.next} =`
+      const isInfinity = !isFinite(result)
+      
+      displayValue.statement =
+      typeof result !== 'number'
+      ? '숫자가 아닌 결과값 입니다'
+      : isInfinity
+      ? '0으로 나눌 수 없습니다'
+      : `${displayValue.prev} ${displayValue.arithmetic} ${displayValue.next} =`
+      displayValue.next = isInfinity ? 0 : result
       displayValue.arithmetic = ''
       displayValue.prev = 0
-      displayValue.isAllReset = true
+      displayValue.isResult = true
     }
 
     return {
       displayValue,
-      displayPrevValue,
-      inputPrevValue,
       historyModalOpen,
       onKeyPressEvent,
       onClickKeyPad,
-      displayInputValue,
+      displayNumberValue,
+      displayOperatorValue,
       calculate,
       displayResult
     }
