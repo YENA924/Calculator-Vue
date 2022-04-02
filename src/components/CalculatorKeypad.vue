@@ -71,7 +71,7 @@ export default {
       statement: '',
       prev: 0,
       next: 0,
-      result: computed(() => displayValue.next.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")),
+      result: computed(() => displayValue.next.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')),
       arithmetic: '',
       nextReset: false,
       isResult: false
