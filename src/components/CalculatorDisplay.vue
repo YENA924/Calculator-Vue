@@ -1,21 +1,17 @@
 <template>
   <div class="calc__display">
     <div class="calc__history">
-      <button class="history__button">
-        <span class="history__button--icon" @click="historyModalOpen = !historyModalOpen"></span>
+      <button class="history__button" @click="historyModalOpen = !historyModalOpen">
+        <span class="history__button--icon"></span>
       </button>
     </div>
     <div class="calc__input_container">
-      <p class="result--prev">{{ calcState.statement }}</p>
+      <p class="result--statement">{{ calcState.statement }}</p>
       <p class="result" @keypress="onKeyPressEvent">{{ calcResult }}</p>
     </div>
     
-    <teleport to="body">
-      <div v-if="historyModalOpen" class="calc__history--modal">
-        <div class="history--modal__contents">
-          <p>아직 기록이 없음</p>
-        </div>
-      </div>
+    <teleport to="body" v-if="historyModalOpen">
+      <calculator-history />
     </teleport>
   </div>
 </template>
@@ -23,24 +19,23 @@
 <script>
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import CalculatorHistory from '@/components/teleport/CalculatorHistory'
 
 export default {
   name: 'CalculatorDisplay',
+  components: {
+    CalculatorHistory
+  },
   setup () {
     const store = useStore()
-    const historyModalOpen = ref(true)
+    const historyModalOpen = ref(false)
     const calcState = store.state.calculator
     const calcResult = computed(() => store.getters.calcResult)
-    
-    const onKeyPressEvent = ($event) => {
-      console.log($event)
-    }
     
     return {
       historyModalOpen,
       calcState,
-      calcResult,
-      onKeyPressEvent
+      calcResult
     }
   }
 }

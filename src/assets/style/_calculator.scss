@@ -1,13 +1,3 @@
-// color
-.keypad--white {
-  background-color: #ffffff !important ;
-}
-
-.keypad--blue {
-  background-color: #0D47A1 !important ;
-  color: #ffffff;
-}
-
 // calculator
 .calculator {
   height: 100%;
@@ -47,6 +37,7 @@
     align-items: flex-end;
     flex-wrap: wrap;
 
+    .result--statement { height: 14px;}
     .result {
       font-size: 48px;
       margin: 0;
@@ -90,22 +81,61 @@
 
 // modal
 .calc__history--modal {
-  display: none;
   position: absolute;
   top: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   
-  .history--modal__contents {
+  .history__container {
     position: absolute;
     top: 150px;
     display: block;
     width: 100%;
-    height: calc(100% - 150px);
+    height: calc(100% - 185px);
     padding: 15px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     background-color: #FAFAFA;
+    overflow: auto;
+
+    .history__contents {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      text-align: right;
+
+      p { font-size: 15px; }
+      .result {
+        margin-top: 10px;
+        font-size: 30px;
+      }
+    }
+  }
+
+  .history__footer {
+    position: absolute;
+    display: flex;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    background-color: #FAFAFA;
+    padding: 9px;
+    justify-content: flex-end;
+
+    .remove__button {
+      display: flex;
+      width: 25px;
+      height: 25px;
+      border-radius: 3px;
+      box-shadow: none;
+      
+      &:hover {
+        background-color: rgba(66, 66, 66, 0.2);
+      }
+      
+      .remove__button--icon {
+        background: url('@/assets/icon/delete.svg') no-repeat center center;
+      }
+    }
   }
 }
