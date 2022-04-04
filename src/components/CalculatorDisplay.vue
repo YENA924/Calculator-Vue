@@ -1,13 +1,13 @@
 <template>
   <div class="calc__display">
-    <!-- <div class="calc__history">
+    <div class="calc__history">
       <button class="history__button">
         <span class="history__button--icon" @click="historyModalOpen = !historyModalOpen"></span>
       </button>
     </div>
     <div class="calc__input_container">
-      <p class="result--prev">{{ inputPrevValue }}</p>
-      <p class="result" @keypress="onKeyPressEvent">{{ inputDisplayValue }}</p>
+      <p class="result--prev">{{ calcState.statement }}</p>
+      <p class="result" @keypress="onKeyPressEvent">{{ calcResult }}</p>
     </div>
     
     <teleport to="body">
@@ -16,27 +16,30 @@
           <p>아직 기록이 없음</p>
         </div>
       </div>
-    </teleport> -->
+    </teleport>
   </div>
 </template>
 
 <script>
-import { ref } from '@vue/reactivity'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+
 export default {
   name: 'CalculatorDisplay',
   setup () {
-    const inputDisplayValue = ref(0)
-    const inputPrevValue = ref('')
+    const store = useStore()
     const historyModalOpen = ref(true)
-
+    const calcState = store.state.calculator
+    const calcResult = computed(() => store.getters.calcResult)
+    
     const onKeyPressEvent = ($event) => {
       console.log($event)
     }
     
     return {
-      inputDisplayValue,
-      inputPrevValue,
       historyModalOpen,
+      calcState,
+      calcResult,
       onKeyPressEvent
     }
   }
