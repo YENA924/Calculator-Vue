@@ -100,12 +100,18 @@
     overflow: auto;
 
     .history__contents {
-      margin-top: 15px;
-      margin-bottom: 15px;
+      padding-top: 15px;
+      padding-bottom: 15px;
+      padding-right: 5px;
       text-align: right;
 
+      &:hover {
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      
       p { font-size: 15px; }
-      .result {
+      p.result {
         margin-top: 10px;
         font-size: 30px;
       }
@@ -122,7 +128,7 @@
     padding: 9px;
     justify-content: flex-end;
 
-    .remove__button {
+    .clear__button {
       display: flex;
       width: 25px;
       height: 25px;
@@ -133,7 +139,7 @@
         background-color: rgba(66, 66, 66, 0.2);
       }
       
-      .remove__button--icon {
+      .clear__button--icon {
         background: url('@/assets/icon/delete.svg') no-repeat center center;
       }
     }

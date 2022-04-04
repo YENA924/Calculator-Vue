@@ -63,7 +63,16 @@ const displayFouroperator = (state) => {
 const displayResult = (state, result) => {
   console.log('▶️ 계산 결과 표시')
   const isInfinity = !isFinite(result)
-
+  
+  if (typeof result === 'number' && !isInfinity) {
+    const computedResult = String(result).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
+    
+    state.historyArray.push(Object.assign({
+      statement: `${state.prevNumber} ${state.operator} ${state.nextNumber} =`,
+      result: computedResult
+    }))
+  }
+  
   state.statement =
   typeof result !== 'number'
     ? '숫자가 아닌 결과값 입니다'
@@ -73,12 +82,6 @@ const displayResult = (state, result) => {
   state.nextNumber = isInfinity ? 0 : result
   state.isPressResult = true
   
-  if (typeof result === 'number' && !isInfinity) {
-    state.historyArray.push(Object.assign({
-      statement: `${state.prevNumber} ${state.operator} ${state.nextNumber} =`,
-      result: result
-    }))
-  }
   resetState(state, 'prevNumber', 'operator')
 }
 
@@ -163,6 +166,16 @@ const mutations = {
 
     console.log(`입력한 사칙연산자: ${state.operator}, 결과값: ${result}`)
     displayResult(state, result)
+  },
+  changeDisplay (state, payload) {
+    console.log(`✔️ 선택한 기록으로 계산 결과식 변경: ${JSON.stringify(payload)}`)
+    state.statement = payload.statement
+    state.nextNumber = payload.result
+    state.isPressResult = true
+  },
+  clearHistory (state) {
+    console.log('✔️ 기록 삭제')
+    state.historyArray = []
   }
 }
 

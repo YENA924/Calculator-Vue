@@ -1,17 +1,17 @@
 <template>
   <div class="calc__display">
     <div class="calc__history">
-      <button class="history__button" @click="historyModalOpen = !historyModalOpen">
+      <button class="history__button" @click="historyModalOpen = true">
         <span class="history__button--icon"></span>
       </button>
     </div>
     <div class="calc__input_container">
       <p class="result--statement">{{ calcState.statement }}</p>
-      <p class="result" @keypress="onKeyPressEvent">{{ calcResult }}</p>
+      <p class="result">{{ calcResult }}</p>
     </div>
     
     <teleport to="body" v-if="historyModalOpen">
-      <calculator-history />
+      <calculator-history @closeHistoryModal="historyModalOpen = false"/>
     </teleport>
   </div>
 </template>
