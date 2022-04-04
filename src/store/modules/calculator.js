@@ -95,7 +95,6 @@ const resetState = (state, ...args) => {
 
 const mutations = {
   displayNumberValue (state, payload) {
-    if (state.nextNumber.length === 16) return false
       
     console.group('✔️ 숫자 입력')
     console.log(`입력한 숫자 : ${payload}`)
@@ -106,6 +105,8 @@ const mutations = {
     if (state.isPressResult) resetState(state, 'nextNumber', 'isPressResult', 'statement')
   
     if (state.isNextReset) resetState(state, 'nextNumber', 'isNextReset')
+    
+    if (state.nextNumber.length === 16) return false
     
     state.nextNumber === 0 ? state.nextNumber = Number(payload) : state.nextNumber += payload
   },
@@ -124,7 +125,6 @@ const mutations = {
         displayDot(state, payload)
         break
       case payload === '+/-':
-        state.operator = payload
         diplayNegative(state)
         break
       case /^([+\-×÷])$/.test(payload):
