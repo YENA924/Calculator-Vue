@@ -14,7 +14,53 @@ const getters = {
   }
 }
 
+const displayBackSpace = (state) => {
+  console.log('▶️ 입력값 삭제')
+  state.nextNumber.length === 1 || state.nextNumber.length === undefined || state.nextNumber.length === null
+  ? state.nextNumber = 0
+  : state.isPressResult 
+    ? state.statement = ''
+    : state.nextNumber = state.nextNumber.slice(0, -1)
+}
+
+const displayClear = (state, payload) => {
+  console.log('▶️ 입력값 리셋')
+  if (payload === 'CE' && state.arithmetic !== '') {
+    state.nextNumber = 0
+    return false
+  }
+  
+  resetState(state, 'nextNumber', 'prevNumber', 'arithmetic', 'statement')
+}
+
+const displayDot = (state, payload) => {
+  console.log('▶️ 소수점 추가')
+  if (state.isPressResult) resetState(state, 'nextNumber', 'isPressResult', 'statement')
+  
+  state.nextNumber = String(state.nextNumber).includes('.')? state.nextNumber : `${state.nextNumber}${payload}`
+}
+
+const diplayNegative = (state) => {
+  console.log('▶️ 양수/음수 전환')
+  state.nextNumber = -Number(state.nextNumber)
+}
+
+const displayArithmetic = (state) => {
+  console.log('▶️ 사칙연산자')
+  if (state.isPressResult) {
+    state.prevNumber = state.nextNumber
+    state.statement = `${state.nextNumber} ${state.arithmetic}`
+    state.nextNumber = 0
+    state.isPressResult = false
+  } else {
+    state.prevNumber = state.nextNumber
+    state.statement = `${state.nextNumber} ${state.arithmetic}`
+    state.isNextReset = true
+  }
+}
+
 const displayResult = (state, result) => {
+  console.log('▶️ 계산 결과 표시')
   const isInfinity = !isFinite(result)
     
   state.statement =
@@ -40,6 +86,12 @@ const mutations = {
   displayNumberValue (state, payload) {
     if (state.nextNumber.length === 16) return false
       
+    console.group('✔️ 숫자 입력')
+    console.log(`입력한 숫자 : ${payload}`)
+    console.log(`연산자 이전 입력 여부? ${state.isNextReset}`)
+    console.log(`결과값 도출 여부? ${state.isPressResult}, `)
+    console.groupEnd()
+    
     if (state.isPressResult) resetState(state, 'nextNumber', 'isPressResult', 'statement')
   
     if (state.isNextReset) resetState(state, 'nextNumber', 'isNextReset')
@@ -47,52 +99,34 @@ const mutations = {
     state.nextNumber === 0 ? state.nextNumber = Number(payload) : state.nextNumber += payload
   },
   displayOperatorValue (state, payload) {
-    const isArithmetic = /^([+\-×÷])$/.test(payload)
-      
-    if (payload === 'backspace') {
-      state.nextNumber.length === 1 || state.nextNumber.length === undefined || state.nextNumber.length === null
-      ? state.nextNumber = 0
-      : state.isPressResult 
-        ? state.statement = ''
-        : state.nextNumber = state.nextNumber.slice(0, -1)
-    }
+    console.log(`✔️ 연산자 입력: ${payload}`)
     
-    if (payload === 'C' || payload === 'CE') {
-      if (payload === 'CE' && state.arithmetic !== '') {
-        state.nextNumber = 0
-        return false
-      }
-      
-      resetState(state, 'nextNumber', 'prevNumber', 'arithmetic', 'statement')
-    }
-    
-    if (payload === '.') {
-      if (state.isPressResult) resetState(state, 'nextNumber', 'isPressResult', 'statement')
-      
-      state.nextNumber = state.nextNumber.includes('.')? state.nextNumber : `${state.nextNumber}${payload}`
-    }
-    
-    if (payload === '+/-') {
-      state.arithmetic = payload
-      state.nextNumber = -Number(state.nextNumber)
-    }
-    
-    if (isArithmetic) {
-      state.arithmetic = payload
-      
-      if (state.isPressResult) {
-        state.prevNumber = state.nextNumber
-        state.statement = `${state.nextNumber} ${state.arithmetic}`
-        state.nextNumber = 0
-        state.isPressResult = false
-      } else {
-        state.prevNumber = state.nextNumber
-        state.statement = `${state.nextNumber} ${state.arithmetic}`
-        state.isNextReset = true
-      }
+    switch (true) {
+      case payload === 'backspace':
+        displayBackSpace(state)
+        break
+      case payload === 'C':
+      case payload === 'CE':
+        displayClear(state, payload)
+        break
+      case payload === '.':
+        displayDot(state, payload)
+        break
+      case payload === '+/-':
+        state.arithmetic = payload
+        diplayNegative(state)
+        break
+      case /^([+\-×÷])$/.test(payload):
+        state.arithmetic = payload
+        displayArithmetic(state)
+        break
+      default:
+        console.error('알 수 없는 키패드 입력값 입니다')
     }
   },
   calculate (state) {
+    console.log('✔️ 계산 실행')
+    
     const isNullArithmetic = state.arithmetic === '' || state.arithmetic === null || state.arithmetic === undefined
     const isNullPrevNumber = state.prevNumber === '' || state.prevNumber === null || state.prevNumber === undefined
     const isNullNextNumber = state.nextNumber === '' || state.nextNumber === null || state.nextNumber === undefined
@@ -119,6 +153,7 @@ const mutations = {
         return false
     }
 
+    console.log(`입력한 사칙연산자: ${state.arithmetic}, 결과값: ${result}`)
     displayResult(state, result)
   }
 }
