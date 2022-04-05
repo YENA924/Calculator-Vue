@@ -20,11 +20,11 @@ const getters = {
 
 const displayBackSpace = (state) => {
   console.log('▶️ 입력값 삭제')
-  state.nextNumber.length === 1 || state.nextNumber.length === undefined || state.nextNumber.length === null
-  ? state.nextNumber = 0
-  : state.isPressResult 
-    ? state.statement = ''
-    : state.nextNumber = state.nextNumber.slice(0, -1)
+  const LenNextNumber = state.nextNumber.length === 1 || state.nextNumber.length === undefined || state.nextNumber.length === null
+  
+  if (LenNextNumber) state.nextNumber = 0
+  else if (state.isPressResult) state.statement = ''
+  else state.nextNumber = state.nextNumber.slice(0, -1) 
 }
 
 const displayClear = (state, payload) => {
@@ -75,12 +75,10 @@ const displayResult = (state, result) => {
   }
   
   // 계산 결과 입력
-  state.statement =
-  typeof result !== 'number'
-    ? '숫자가 아닌 결과값 입니다'
-    : isInfinity
-      ? '0으로 나눌 수 없습니다'
-      : `${state.prevNumber} ${state.operator} ${state.nextNumber} =`
+  if (typeof result !== 'number') state.statement = '숫자가 아닌 결과값 입니다'
+  else if (isInfinity) state.statement = '0으로 나눌 수 없습니다'
+  else state.statement = `${state.prevNumber} ${state.operator} ${state.nextNumber} =`
+
   state.nextNumber = isInfinity ? 0 : result
   state.isPressResult = true
   
