@@ -50,14 +50,16 @@ export default {
     const store = useStore()
     
     const onClickKeyPad = (event) => {
+      // 클릭한 버튼 내 텍스트
       const innerText = event.target.innerText
       
       if (innerText === undefined || innerText === null || innerText === '') return false
       
+      // 숫자, 연산자 정규표현식
       const numberReg = /^[0-9]$/
       const operatorReg = /^([+\-.×÷])|(C|\bCE\b|\bbackspace\b|\b\+\/-\b)$/
       
-      switch (true) {
+      switch (true) { // 클릭한 버튼 내 텍스트가 숫자인지, 연산자 인지에 따른 분기처리
         case numberReg.test(innerText):
           displayNumberValue(innerText)
           break

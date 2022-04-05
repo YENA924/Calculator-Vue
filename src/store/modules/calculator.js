@@ -65,6 +65,7 @@ const displayResult = (state, result) => {
   const isInfinity = !isFinite(result)
   
   if (typeof result === 'number' && !isInfinity) {
+    // 기록 입력
     const computedResult = String(result).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
     
     state.historyArray.push(Object.assign({
@@ -73,6 +74,7 @@ const displayResult = (state, result) => {
     }))
   }
   
+  // 계산 결과 입력
   state.statement =
   typeof result !== 'number'
     ? '숫자가 아닌 결과값 입니다'
@@ -86,6 +88,8 @@ const displayResult = (state, result) => {
 }
 
 const resetState = (state, ...args) => {
+  // state 데이터 리셋
+  // 첫번째: state, 두번째~: reset할 state 데이터명
   args.forEach(arg => {
     if (arg.includes('Number')) state[arg] = 0
     else if (arg.includes('is')) state[arg] = false
@@ -95,17 +99,19 @@ const resetState = (state, ...args) => {
 
 const mutations = {
   displayNumberValue (state, payload) {
-      
     console.group('✔️ 숫자 입력')
     console.log(`입력한 숫자 : ${payload}`)
     console.log(`연산자 이전 입력 여부? ${state.isNextReset}`)
     console.log(`결과값 도출 여부? ${state.isPressResult}, `)
     console.groupEnd()
     
+    // 결과값이 있는 경우
     if (state.isPressResult) resetState(state, 'nextNumber', 'isPressResult', 'statement')
   
+    // 연산자를 입력했을 경우
     if (state.isNextReset) resetState(state, 'nextNumber', 'isNextReset')
     
+    // 글자수 제한
     if (state.nextNumber.length === 16) return false
     
     state.nextNumber === 0 ? state.nextNumber = Number(payload) : state.nextNumber += payload
@@ -142,10 +148,12 @@ const mutations = {
     const isNullPrevNumber = state.prevNumber === '' || state.prevNumber === null || state.prevNumber === undefined
     const isNullNextNumber = state.nextNumber === '' || state.nextNumber === null || state.nextNumber === undefined
 
+    // 숫자 입력이 안됐거나 입력한 연산자가 없을 경우 리턴
     if (isNullOperator || isNullPrevNumber || isNullNextNumber) return false
     
     let result = 0
     
+    // 사칙연산
     switch (state.operator) {
       case '+':
         result = Number(state.prevNumber) + Number(state.nextNumber)
